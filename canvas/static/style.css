@@ -1,0 +1,305 @@
+#project-toolbar { display:flex; flex-wrap:wrap; gap:6px; padding:6px 14px; border-bottom:1px solid var(--line); background:var(--bg2); }
+#project-select { width:220px; max-width:100%; min-width:100px; color:var(--txt); background:var(--bg3); border:1px solid var(--line); border-radius:4px; padding:4px 8px; }
+#topbar { flex-wrap:wrap; }
+#tabs { min-width:160px; }
+.header-actions { flex-wrap:wrap; }
+#sync-status { max-width:320px; overflow:hidden; text-overflow:ellipsis; }
+.project-busy #project-toolbar { pointer-events:none; opacity:.65; }
+/* Transformer 画布 · 深色学习主题 */
+#model-phase-tabs { position:absolute; top:0; left:0; right:0; height:42px; display:flex; gap:8px; align-items:center; padding:5px 12px; z-index:5; background:#1b1f2a; border-bottom:1px solid #58606e; }
+#model-phase-tabs button { padding:6px 18px; }
+#model-phase-tabs [aria-selected="true"] { background:#31634e; color:white; }
+#canvas-stack.has-model-phases .dflow-container { top:42px; height:calc(100% - 42px); }
+#model-init-panel { position:absolute; inset:42px 0 0; overflow:auto; padding:24px; background:#14171f; color:#d8dee9; }
+#model-init-panel h3, #model-init-panel h4 { margin-bottom:16px; font-size:16px; }
+#model-init-panel h4 { margin-top:24px; }
+#model-init-panel label { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:8px 0; }
+#model-init-panel input { max-width:100%; padding:6px; }
+#model-constructor-params { width:320px; }
+.model-member { border-top:1px solid #58606e; padding:12px 0; }
+.model-member button { padding:6px; margin-bottom:8px; }
+#definition-settings { position:absolute; inset:0 0 auto; height:42px; padding:10px 12px; border-bottom:1px solid var(--line); background:var(--bg2); font-size:13px; }
+#canvas-stack.has-definition-toolbar .dflow-container { top:42px; height:calc(100% - 42px); }
+
+:root {
+  --bg: #14171f;
+  --bg2: #1b1f2a;
+  --bg3: #232838;
+  --line: #2e3547;
+  --txt: #d8dee9;
+  --dim: #7d8598;
+  --acc: #f0a03c;        /* 主色：橙（呼应"注意力"示意图的橙） */
+  --acc2: #5ac8a8;       /* 绿：输入/成功 */
+  --acc3: #6aa5f8;       /* 蓝 */
+  --err: #ef6a6a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--txt);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- 顶栏 ---------- */
+#topbar {
+  display: flex; align-items: center; gap: 14px;
+  padding: 8px 14px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--line);
+  flex: 0 0 auto;
+}
+.brand { font-weight: 700; color: var(--acc); white-space: nowrap; }
+#tabs { display: flex; gap: 4px; flex: 1 1 auto; overflow-x: auto; }
+.tab {
+  padding: 5px 12px; border-radius: 6px 6px 0 0;
+  background: var(--bg3); color: var(--dim);
+  cursor: pointer; white-space: nowrap; user-select: none;
+  border: 1px solid var(--line); border-bottom: none;
+  font-size: 13px;
+}
+.tab.active { color: var(--txt); background: var(--bg); border-color: var(--acc); }
+.tab-add { border-style: dashed; }
+.tab-close { margin-left: 8px; opacity: .6; }
+.tab-close:hover { opacity: 1; color: var(--err); }
+.header-actions { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+
+button {
+  background: var(--bg3); color: var(--txt);
+  border: 1px solid var(--line); border-radius: 6px;
+  padding: 5px 12px; cursor: pointer; font-size: 13px;
+}
+button:hover { border-color: var(--acc); }
+button.primary { background: var(--acc); border-color: var(--acc); color: #1a130a; font-weight: 700; }
+button.primary:disabled { opacity: .5; cursor: wait; }
+button.mini { padding: 2px 8px; font-size: 12px; }
+
+#sync-status { font-size: 12px; padding: 4px 10px; border-radius: 6px; }
+#sync-status.idle { color: var(--dim); }
+#sync-status.ok { color: var(--acc2); }
+#sync-status.warn { color: var(--acc); cursor: help; }
+#sync-status.err { color: var(--err); }
+
+/* ---------- 主区三栏 ---------- */
+#main { display: flex; flex: 1 1 auto; min-height: 0; }
+
+/* 组件栏 */
+#palette {
+  flex: 0 0 178px; overflow-y: auto;
+  background: var(--bg2); border-right: 1px solid var(--line);
+  padding: 10px;
+}
+.pal-title {
+  font-size: 12px; color: var(--dim); margin: 10px 0 6px;
+  letter-spacing: 0; border-bottom: 1px solid var(--line); padding-bottom: 4px;
+}
+.pal-title:first-child { margin-top: 0; }
+.palette-item {
+  background: var(--bg3); border: 1px solid var(--line);
+  border-radius: 6px; padding: 7px 9px; margin-bottom: 6px;
+  cursor: grab; user-select: none;
+}
+.palette-item:hover { border-color: var(--acc); }
+.pi-name { font-size: 13px; }
+.pi-desc { font-size: 11px; color: var(--dim); margin-top: 2px; }
+.pi-empty { font-size: 11px; color: var(--dim); line-height: 1.6; }
+.palette-group { margin-bottom:10px; }
+.palette-group > summary { cursor:pointer; color:var(--txt); padding:5px 0 7px; font-size:12px; }
+.palette-group > summary:focus-visible, button:focus-visible { outline:2px solid var(--acc2); outline-offset:2px; }
+
+/* 函数画布专用节点：只在函数标签页显示 */
+body[data-mode="main"] .fn-only { display: none; }
+
+/* 画布区 */
+#canvas-stack { flex: 1 1 auto; position: relative; min-width: 0; }
+.dflow-container { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* 右栏 */
+#right {
+  flex: 0 0 390px; min-width: 0; width: 390px; display: flex; flex-direction: column;
+  background: var(--bg2); border-left: 1px solid var(--line); min-height: 0;
+}
+#code-panel { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; padding: 10px; }
+.panel-title { font-size: 12px; color: var(--dim); margin-bottom: 8px; letter-spacing: 0; }
+.panel-title .dim { color: var(--dim); opacity: .7; }
+#code-view {
+  flex: 1 1 auto; overflow: auto; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 6px;
+  padding: 10px; font-family: Consolas, "Courier New", monospace;
+  font-size: 12px; line-height: 1.55; color: #b9c4d6;
+  white-space: pre;
+}
+
+/* Dark+ inspired token colors; no token backgrounds obscure node selection. */
+#code-view .token { background: none; }
+#code-view .token.comment { color: #83a86b; }
+#code-view .token.keyword { color: #c586c0; }
+#code-view .token.builtin, #code-view .token.boolean { color: #569cd6; }
+#code-view .token.string { color: #ce9178; }
+#code-view .token.number { color: #b5cea8; }
+#code-view .token.function { color: #dcdcaa; }
+#code-view .token.class-name { color: #4ec9b0; }
+#code-view .token.decorator, #code-view .token.annotation { color: #dcdcaa; }
+#code-view .token.operator, #code-view .token.punctuation { color: #d4d4d4; }
+#code-view .token.interpolation { color: #b9c4d6; }
+#code-view .code-line { display: block; width: max-content; min-width: 100%; min-height: 1.55em; }
+#code-view .code-line.is-selected { background: #5ac8a82b; box-shadow: inset 3px 0 var(--acc2); color: #eefaf5; }
+
+/* Inspector 表单（常显于节点 .nd-params 内；黄色功能标题移至节点名标题框正下方的 .nd-callable） */
+.ins-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-bottom: 7px; font-size: 12px;
+}
+.ins-row small { color: var(--dim); }
+.ins-row input[type="text"], .ins-row input[type="number"] {
+  width: 130px; background: var(--bg); color: var(--txt);
+  border: 1px solid var(--line); border-radius: 4px; padding: 4px 6px; font-size: 12px;
+}
+.ins-row input:focus { outline: none; border-color: var(--acc); }
+.ins-hint { font-size: 11px; color: var(--dim); line-height: 1.6; margin: 8px 0; }
+.ins-btn { width: 100%; margin-top: 8px; }
+.ins-btn.danger { border-color: var(--err); color: var(--err); }
+.empty-hint { color: var(--dim); font-size: 12px; text-align: center; padding: 30px 0; line-height: 1.8; }
+
+/* ---------- 输出面板 ---------- */
+#output-panel {
+  flex: 0 0 auto; max-height: 200px;
+  background: var(--bg2); border-top: 1px solid var(--line);
+  padding: 8px 14px; display: flex; flex-direction: column;
+}
+#output-panel .panel-title { display: flex; align-items: center; gap: 10px; }
+#output-view {
+  overflow: auto; font-family: Consolas, monospace; font-size: 12px;
+  line-height: 1.5; color: var(--dim); white-space: pre-wrap;
+}
+#output-view.ok { color: var(--acc2); }
+#output-view.bad { color: var(--err); }
+
+/* ---------- Drawflow: fixed pin rows and scoped socket styles ---------- */
+.dflow-container {
+  background-color: #191b1e;
+  background-image: linear-gradient(#ffffff06 1px, transparent 1px), linear-gradient(90deg, #ffffff06 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.dflow-container .drawflow-node {
+  --header: #365f78;
+  background: #25282c; border: 1px solid #51565d; border-radius: 5px;
+  color: #edf0f2; padding: 0; width: 260px; min-width: 260px; max-width:260px; display: block;
+  box-shadow: 0 3px 8px #0005;
+}
+.dflow-container .drawflow-node.selected { background: #25282c; border-color: #e8be62; box-shadow: 0 0 0 2px #e8be6270; }
+.dflow-container .node-literal, .dflow-container .node-tensor { --header: #3f7159; }
+.dflow-container .node-fn_input, .dflow-container .node-fn_output { --header: #75516c; }
+.dflow-container .node-print, .dflow-container .node-print_shape { --header: #786337; }
+.dflow-container .nd-head { min-height: 30px; padding: 5px 8px 5px 12px; display:flex; align-items:center; gap:8px; background: var(--header); border-radius: 4px 4px 0 0; }
+.dflow-container .nd-title { display: block; flex:1; min-width:0; font-size: 13px; line-height: 18px; font-weight: 600; white-space: normal; overflow-wrap:anywhere; }
+.dflow-container .nd-toggle { flex:0 0 24px; width:24px; height:24px; padding:0; background:transparent; border-color:transparent; font-size:20px; line-height:20px; }
+.dflow-container .nd-toggle[aria-expanded="true"] > span { display:block; transform:rotate(180deg); }
+.dflow-container .drawflow-node.drawer-open { width:260px; min-width:260px; z-index:3; }
+.dflow-container .drawflow-node.drawer-open.selected { z-index:4; }
+.nd-drawer { border-top:1px solid #51565d; max-height:320px; overflow:auto; cursor:auto; user-select:text; }
+.nd-drawer[hidden], .nd-drawer [hidden] { display:none !important; }
+/* 参数常显在节点内，与运行结果各自独立滚动 */
+.nd-params { border-top:1px solid #51565d; max-height:240px; overflow:auto; cursor:auto; }
+.nd-params[hidden] { display:none !important; }   /* 参数为空的节点不留空白表单容器 */
+.nd-params, .nd-runtime { padding:10px; font-size:12px; min-width:0; max-width:100%; }
+.nd-runtime-view { min-width:0; max-width:100%; }
+.nd-params .ins-btn { min-width:0; white-space:normal; overflow-wrap:anywhere; }
+.nd-params .ins-row { align-items:flex-start; flex-wrap:wrap; }
+.nd-params .ins-row > span { flex:1 1 130px; min-width:0; overflow-wrap:anywhere; }
+.nd-params .ins-row > input:not([type="checkbox"]), .nd-params .ins-row > select { flex:1 1 140px; width:140px; min-width:0; max-width:100%; }
+.nd-params .param-help div { max-width:100%; }
+.dflow-container .nd-title { cursor: text; }
+.dflow-container .nd-name-input {
+  width:100%; min-width:0; font:inherit; font-size:13px; line-height:18px; font-weight:600;
+  color:var(--txt); background:var(--bg); border:1px solid var(--acc); border-radius:4px; padding:0 4px;
+}
+.dflow-container .nd-name-input:focus { outline:none; }
+.dflow-container .nd-name-input.invalid { border-color:var(--err); }
+.dflow-container .nd-summary { padding: 4px 12px; font: 11px/16px Consolas, monospace; color: #b4bac1; white-space: normal; overflow-wrap: anywhere; }
+/* 黄色功能标题（原参数表单 ins-title）：位于节点名标题框正下方，颜色沿用 --acc、加粗醒目，仅此一份 */
+.dflow-container .nd-callable {
+  display:block; margin: 0 0 3px;
+  font-size: 13px; line-height: 18px; font-weight: 700;
+  font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  color: var(--acc);
+}
+.dflow-container .nd-arguments[hidden] { display:none; }
+.node-context-menu { position:fixed; z-index:1000; min-width:132px; max-width:calc(100vw - 8px); max-height:calc(100vh - 8px); overflow:auto; padding:4px; border:1px solid var(--line); border-radius:4px; background:var(--bg2); box-shadow:0 4px 12px #0006; }
+.node-context-menu button { display:block; width:100%; padding:7px 12px; border:0; border-radius:2px; text-align:left; white-space:normal; }
+.node-context-menu button:hover:not(:disabled), .node-context-menu button:focus-visible { background:var(--bg3); }
+.node-context-menu button:disabled { opacity:.45; cursor:default; }
+.dflow-container .nd-pins { padding: 7px 14px 9px; }
+.dflow-container .nd-pin-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; height: 28px; align-items: center; }
+.dflow-container .nd-pin-label { font: 11px/18px Consolas, monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dflow-container .nd-pin-label.pin-output { text-align: right; color: #accee3; }
+/* 运算 op：输入行内手填值编辑器 + 相邻输入行之间的运算符 */
+.dflow-container .nd-pin-row.nd-arg-row { height: auto; min-height: 28px; padding: 2px 0; }
+.nd-pin-input-cell { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; min-width: 0; }
+.nd-arg-value { flex: 1 1 72px; min-width: 0; max-width: 100%; color: var(--txt); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 2px 5px; font: 11px/16px Consolas, "Courier New", monospace; }
+.nd-arg-value:focus { outline: none; border-color: var(--acc); }
+.nd-arg-value:disabled { color: var(--dim); border-style: dashed; opacity: .75; }
+.dflow-container .nd-op-row { display: flex; align-items: center; justify-content: center; height: 22px; }
+.dflow-container .nd-op { width: 76px; color: var(--acc); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 1px 4px; font: 12px/16px Consolas, "Courier New", monospace; text-align: center; }
+.binop-actions { display: flex; gap: 8px; }
+.binop-actions .ins-btn { flex: 1; margin-top: 0; min-width: 0; }
+/* 页面内确认框（移除已连线的末端输入等破坏性操作；不用原生 confirm/prompt） */
+.ed-confirm { margin: auto; width: 380px; max-width: calc(100% - 32px); padding: 20px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg2); color: var(--txt); }
+.ed-confirm::backdrop { background: #0009; }
+.ed-confirm h3 { margin-bottom: 12px; font-size: 15px; }
+.ed-confirm p { font-size: 13px; line-height: 1.7; margin-bottom: 8px; }
+.dflow-container .nd-warning { font-size: 11px; line-height: 16px; color: #ebbd6c; padding: 0 12px 8px; overflow-wrap: anywhere; }
+.dflow-container .nd-warning:empty { display: none; }
+.dflow-container .drawflow-node > .inputs, .dflow-container .drawflow-node > .outputs { position: absolute; inset: 0; width: auto; pointer-events: none; }
+.dflow-container .drawflow-node > .inputs > .input,
+.dflow-container .drawflow-node > .outputs > .output {
+  position: absolute; width: 12px; height: 12px; margin: 0; border: 2px solid #88c7ab;
+  border-radius: 50%; background: #25282c; pointer-events: auto; cursor: crosshair;
+}
+.dflow-container .drawflow-node > .inputs > .input { left: -6px; right: auto; }
+.dflow-container .drawflow-node > .outputs > .output { left: auto; right: -6px; border-color: #8cbeda; }
+.dflow-container .drawflow-node > .inputs > .connected { background: #88c7ab; }
+.dflow-container .drawflow-node > .outputs > .connected { background: #8cbeda; }
+.dflow-container .obsolete { color: #ebbd6c; border-color: #ebbd6c !important; }
+.dflow-container svg.connection { width: 100%; height: 100%; }
+.dflow-container svg.connection path.main-path { stroke: #a7b4c2; stroke-width: 2px; opacity: .9; }
+.dflow-container svg.connection path.main-path.selected { stroke: #e8be62; }
+
+#project-name-dialog { margin:auto; width:360px; max-width:calc(100% - 32px); padding:20px; border:1px solid var(--line); border-radius:6px; background:var(--bg2); color:var(--txt); }
+#project-name-dialog::backdrop { background:#0009; }
+#project-name-dialog h3 { margin-bottom:16px; font-size:15px; }
+#project-name-dialog label { display:flex; flex-direction:column; gap:7px; font-size:13px; }
+#project-name-input { width:100%; padding:8px; color:var(--txt); background:var(--bg); border:1px solid var(--line); border-radius:4px; }
+.dialog-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
+/* Runtime values stay bounded inside each node drawer. */
+.nd-runtime-status { display:block; margin-top:4px; }
+.nd-runtime-view p { margin:6px 0; overflow-wrap:anywhere; }
+.nd-runtime-view .dim { color:var(--dim); }
+.nd-runtime-view .warn, .nd-runtime-status.warn { color:var(--acc); }
+.nd-runtime-status.ok { color:var(--acc2); }
+.tensor-control { display:flex; align-items:center; flex-wrap:wrap; min-width:0; gap:8px; margin:6px 0; }
+.tensor-control span { flex:0 1 68px; min-width:0; overflow-wrap:anywhere; }
+.tensor-control select { min-width:0; flex:1 1 120px; }
+.tensor-control input { width:70px; min-width:0; }
+.tensor-control select, .tensor-control input, .ins-row select { color:var(--txt); background:var(--bg); border:1px solid var(--line); border-radius:4px; padding:4px; max-width:100%; }
+.ins-row select { width:130px; }
+.tensor-table-wrap { overflow:auto; min-width:0; max-width:100%; max-height:210px; margin:8px 0; }
+.tensor-matrix { border-collapse:collapse; font:11px/1.5 Consolas,monospace; white-space:nowrap; }
+.tensor-matrix td, .tensor-matrix th { border:1px solid var(--line); padding:4px 7px; text-align:right; }
+.tensor-matrix th { color:var(--acc3); background:var(--bg); }
+.tensor-source { display:block; margin:5px 0; padding:3px 6px; font-size:11px; max-width:100%; overflow-wrap:anywhere; text-align:left; }
+.tensor-expression, .tensor-repr, .tensor-error { white-space:pre-wrap; overflow-wrap:anywhere; font:11px/1.5 Consolas,monospace; margin:6px 0; }
+.tensor-error { max-height:100px; overflow:auto; color:var(--err); }
+.param-help { display:inline-block; vertical-align:middle; }
+.param-help summary { cursor:help; display:inline-block; color:var(--acc3); border:1px solid var(--line); width:17px; height:17px; text-align:center; border-radius:50%; }
+.param-help div { padding:6px 0; color:var(--txt); line-height:1.5; max-width:220px; }
+@media(max-width:900px) { #palette { flex-basis:140px; } #right { flex-basis:340px; width:340px; } }
+@media(max-width:650px) { html,body { overflow:auto; } #main { flex-direction:column; min-height:900px; } #palette { max-height:130px; flex-basis:auto; } #canvas-stack { flex:0 0 400px; } #right { flex:1 0 450px; width:100%; border-left:0; } }
+
+/* 滚动条 */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+::-webkit-scrollbar-track { background: transparent; }

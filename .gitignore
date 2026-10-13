@@ -1,0 +1,30 @@
+# 虚拟环境与 Python 缓存
+.venv/
+__pycache__/
+*.pyc
+
+# 工具工作目录（所有层级）
+.zcode/
+
+# 用户本地数据：画布项目、备份、运行记录、迁移草稿
+canvas/projects/
+canvas/backups/
+canvas/runs/
+canvas/generated_model.py
+canvas/graph.json
+
+# 补丁残留与日志
+*.orig
+*.rej
+*.log
+logs/
+
+# 环境变量文件
+.env
+.env.*
+*.env
+
+# 系统缓存
+.DS_Store
+Thumbs.db
+Desktop.ini

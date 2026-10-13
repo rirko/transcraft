@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transformer 画布 · 手搓学习辅助</title>
+<link rel="stylesheet" href="/static/vendor/drawflow.min.css">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body data-mode="main">
+
+<nav id="project-toolbar" aria-label="项目">
+  <select id="project-select" aria-label="当前项目"></select>
+  <button id="btn-project-new" title="新建项目">新建</button>
+  <button id="btn-project-rename" title="重命名项目">重命名</button>
+  <button id="btn-save" title="保存项目和草稿">保存</button>
+  <button id="btn-project-save-as" title="另存为独立项目">另存为</button>
+  <button id="btn-draft-export" title="下载当前画布和浏览器草稿备份">导出备份</button>
+  <button id="btn-draft-recover" hidden title="把未同步草稿恢复为独立项目">恢复草稿</button>
+</nav>
+<header id="topbar">
+  <div class="brand">⚡ Transformer 画布</div>
+  <div id="tabs"></div>
+  <div class="header-actions">
+    <button id="btn-example1" title="载入第 1 课的 Embedding 示例">示例：Embedding</button>
+    <button id="btn-example2" title="载入自注意力五步曲示例">示例：注意力</button>
+    <button id="btn-run" class="primary">▶ 运行</button>
+    <span id="sync-status" class="idle" title="画布每次改动会自动写入 generated_model.py">未同步</span>
+  </div>
+</header>
+
+<div id="main">
+  <aside id="palette">
+    <div class="pal-title">基础节点</div>
+    <div id="palette-basic"></div>
+    <div class="pal-title fn-only">模型画布专用</div>
+    <div id="palette-fnnodes" class="fn-only"></div>
+    <div class="pal-title">模型与函数定义</div>
+    <div id="palette-fns"></div>
+  </aside>
+
+  <div id="canvas-stack"></div>
+
+  <aside id="right">
+    <div id="code-panel">
+      <div class="panel-title">generated_model.py <span class="dim">（实时预览，自动写入磁盘）</span></div>
+      <pre id="code-view"># （画布内容会同步生成到这里）</pre>
+    </div>
+  </aside>
+</div>
+
+<footer id="output-panel">
+  <div class="panel-title">运行输出
+    <button id="btn-clear-output" class="mini">清空</button>
+  </div>
+  <pre id="output-view" class="">（还没有运行过。搭好画布后点右上角「▶ 运行」）</pre>
+</footer>
+
+<script src="/static/vendor/drawflow.min.js"></script>
+<!-- Prism 1.30.0: local official assets; manual mode preserves source-map line wrappers. -->
+<script src="/static/vendor/prism-core-1.30.0.min.js" data-manual></script>
+<script src="/static/vendor/prism-python-1.30.0.min.js"></script>
+<script src="/static/editor.js"></script>
+<script src="/static/app.js"></script>
+<script src="/static/architecture.js"></script>
+<script src="/static/projects.js"></script>
+<script src="/static/tensor-viewer.js"></script>
+</body>
+</html>
