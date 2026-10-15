@@ -21,7 +21,7 @@ function resolveVariables(recs, errors, opts) {
   const symbols=new Map(),members=new Map();
   const add=(map,name,value)=>{if(!map.has(name))map.set(name,[]);map.get(name).push(value);};
   for(const r of Object.values(recs)) {
-    if(r.isParam || STMT_TYPES.includes(r.type)) {
+    if(r.isParam || App.isStmtType(r.type)) {
       r.outVars.slice(0,Object.keys(r.n.outputs||{}).length).forEach((name,port)=>add(symbols,name,{up:r,port,expression:opts.isClass&&r.type==='create'?`self.${name}`:name}));
     }
     if(opts.isClass && ['embedding','linear','call','create'].includes(r.type)) add(members,r.outVar,{up:r,port:0,expression:`self.${r.outVar}`,member:true});
@@ -119,7 +119,12 @@ stmtOf=function(r) {
   return oldStmt(r);
 };
 App.generatePython=function() {
-  const lines=['import torch','import torch.nn as nn','',`torch.manual_seed(${asInt(App.state.seed,1234)})`,''];
+  // 自定义节点声明的模块导入：只收集当前图（主画布 + 模型画布）实际用到的 custom 节点
+  // 并按 module+alias 去重；与默认 torch / torch.nn as nn 重复的声明已在规范校验时丢弃。
+  const customImports=App.collectCustomImports?App.collectCustomImports():[];
+  const lines=['import torch','import torch.nn as nn',
+    ...customImports.map(e=>e.alias?`import ${e.module} as ${e.alias}`:`import ${e.module}`),
+    '',`torch.manual_seed(${asInt(App.state.seed,1234)})`,''];
   const sourceMap=Object.create(null);
   const tracePlan=[];
   // Track physical lines at emission time, including multiline statements.

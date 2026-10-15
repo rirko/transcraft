@@ -112,10 +112,10 @@ class PersistenceTest(unittest.TestCase):
         self.assertFalse((server.DATA_DIR/'projects'/'legacy-project.json').exists())
 
     def test_literal_validation(self):
-        for source, kind in [('42', 'int'), ('-1.5', 'float'), ('1+2j', 'complex'), ('"hi"', 'str'), ('True', 'bool'), ('None', 'NoneType'), ('[1, "x"]', 'list'), ('(1, False)', 'tuple')]:
+        for source, kind in [('42', 'int'), ('-1.5', 'float'), ('1+2j', 'complex'), ('"hi"', 'str'), ('True', 'bool'), ('None', 'NoneType'), ('[1, "x"]', 'list'), ('(1, False)', 'tuple'), ('{"x": 1}', 'dict'), ("{0: '知', 1: '之'}", 'dict')]:
             result = self.request('/api/literal', {'source': source})
             self.assertEqual(result['type'], kind)
-        for source in ['__import__("os")', '1 + 2', '[x for x in []]', '{"x": 1}', '{1, 2}', 'b"x"', '1e999', '', '[' * 300, 'x' * 10001]:
+        for source in ['__import__("os")', '1 + 2', '[x for x in []]', '{1, 2}', '{k: 1 for k in []}', '{[1]: 2}', '{**{1: 2}}', "{1e999: 'x'}", "{0: {1: 1e999}}", 'b"x"', '1e999', '', '[' * 300, 'x' * 10001]:
             with self.assertRaises(HTTPError):
                 self.request('/api/literal', {'source': source})
 

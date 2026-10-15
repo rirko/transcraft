@@ -7,7 +7,8 @@ App.projectBusy = false;
 App.saveQueue = Promise.resolve();
 App.snapshot = () => JSON.parse(JSON.stringify({version:3, seed:App.state.seed,
   main:ED.exportData('main'), functions:App.state.fnOrder.map(name => ({name,
-    ...App.state.definitions[name], data:ED.exportData('fn:'+name)}))}));
+    ...App.state.definitions[name], data:ED.exportData('fn:'+name)})),
+  nodeSpecs:App.nodeSpecsSnapshot ? App.nodeSpecsSnapshot() : []}));
 App.request = async function(path, data) {
   const response = await fetch(path, data === undefined ? {} : {method:'POST',
     headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
@@ -93,6 +94,9 @@ App.loadProject = function(project) {
   try {
     ED.clearClipboard();
     App.clearAllModels(); App.state.definitions={};
+    // 先验证并注册本项目的节点规范（切换项目即清空重建 custom registry），再导入图。
+    // 旧 v2/v3 快照没有 nodeSpecs 字段 → 按空数组处理；缺定义时保留原图并报错禁止运行。
+    const specProblem = window.NS ? App.prepareProjectSpecs(project.graph, project.id) : '';
     App.state.seed=project.graph.seed??1234;
     for(const f of project.graph.functions) {
       App.state.definitions[f.name]={kind:f.kind||'model',params:f.params||''};
@@ -105,7 +109,8 @@ App.loadProject = function(project) {
     App.renderTabs(); App.renderFnPalette(); App.switchTab('main');
     App.codeSourceMap={}; App.renderCodePreview(project.code||'# Draft');
     $('#output-view').textContent=''; $('#project-select').value=project.id;
-    App.projectStatus('已打开 · '+project.name);
+    if(specProblem) App.projectStatus('⚠ '+specProblem,'err');
+    else App.projectStatus('已打开 · '+project.name);
   } finally { App.loadingProject=false; }
 };
 App.projectAction = async function(action) {

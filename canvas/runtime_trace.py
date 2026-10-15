@@ -130,6 +130,20 @@ class Recorder:
         if type(value) in (tuple, list) and depth < 2:
             return dict(kind='sequence', type=kind, count=len(value),
                         items=[self.preview(x, depth+1) for x in value[:8]], truncated=len(value)>8)
+        # 字典：有界键值预览。JSON 键必须是字符串，因此用 repr(key) 保留键的真实
+        # 类型面貌（整数 0 显示为 0，字符串 '知' 显示为 '知'），与值成对输出。
+        if isinstance(value, dict) and depth < 2:
+            entries = []
+            for index, (key, item) in enumerate(value.items()):
+                if index >= 8:
+                    break
+                try:
+                    key_text = repr(key)
+                except Exception:
+                    key_text = '<'+type(key).__name__+' 键>'
+                entries.append([key_text[:100], self.preview(item, depth+1)])
+            return dict(kind='mapping', type=kind, count=len(value),
+                        entries=entries, truncated=len(value)>8)
         return dict(kind='value', type=kind, repr='<'+kind+'>')
 
     def record(self, key, outputs):

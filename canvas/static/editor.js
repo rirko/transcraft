@@ -20,8 +20,8 @@ ED.NODE_DEFS = {
   literal: {
     label: '基础值 Literal', defaults: { name: 'value' },
     inputs: 0, outputs: 1, inNames: [], outNames: ['value'],
-    params: [{ key: 'value', label: 'Python 字面量', type: 'text', def: '0', help: 'Literal 只接受数字、字符串、列表等字面量，不接受变量名。引用 dim 等已有变量请使用「变量引用 Variable Reference」。' }],
-    summary: d => String(d.value ?? '0'),
+    params: [{ key: 'value', label: 'Python 字面量', type: 'text', multiline: true, def: '0', help: 'Literal 只接受字面量：数字、带引号字符串、True / False、None、列表、元组和字典（键为数字、字符串、布尔、None 或元组），可多行书写，不接受变量名或表达式。引用 dim 等已有变量请使用「变量引用 Variable Reference」。' }],
+    summary: d => { const text = String(d.value ?? '0').replace(/\s+/g, ' ').trim(); return text.length > 48 ? text.slice(0, 48) + '…' : text; },
   },
   variable_ref: {
     label: '变量引用 Variable Reference', defaults: { name: 'ref' },
@@ -229,6 +229,10 @@ ED.portInfo = function (key, n, side, index) {
   const obsolete = dynamic && index >= labels.length;
   const name = obsolete ? `废弃端口 ${index + 1}` : (labels[index] || (side === 'output' ? 'result' : `参数 ${index + 1}`));
   let type = ['embedding','linear','matmul','transpose','softmax','tensor','ones_like','triu','dtype','masked_fill'].includes(d.type) ? 'Tensor' : 'Any';
+  if (def?.spec) {
+    // 自定义节点：端口类型显示取规范里的类型提示（仅展示，不做编译校验）。
+    type = side === 'input' ? (def.spec.inputs[index]?.type || 'Any') : (def.spec.output?.type || 'Tensor');
+  }
   if(side==='input' && d.type==='triu' && index===1) type='int';
   if(side==='input' && d.type==='masked_fill' && index===1) type='BoolTensor';
   if(side==='input' && d.type==='masked_fill' && index===2) type='number';

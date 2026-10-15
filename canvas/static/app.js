@@ -392,8 +392,14 @@ App.renderInspectorForm = function (key, id, box) {
       html += `<label class="ins-row"><span>${esc(p.label)}${help}</span>
         <input type="checkbox" data-pkey="${p.key}" ${asBool(n.data[p.key]) ? 'checked' : ''}></label>`;
     } else if (p.type === 'text') {
-      html += `<label class="ins-row"><span>${esc(p.label)}${help}</span>
-        <input type="text" data-pkey="${p.key}" value="${esc(n.data[p.key])}"></label>`;
+      // Literal 值（内置 literal 节点与自定义节点 literal 参数）用多行文本域，方便填写字典。
+      if (p.multiline || p.spectype === 'literal') {
+        html += `<label class="ins-row"><span>${esc(p.label)}${help}</span>
+          <textarea data-pkey="${p.key}" rows="3" spellcheck="false" placeholder='如 {0: "知", 1: "之"} 或 ["a", 1]'>${esc(n.data[p.key])}</textarea></label>`;
+      } else {
+        html += `<label class="ins-row"><span>${esc(p.label)}${help}</span>
+          <input type="text" data-pkey="${p.key}" value="${esc(n.data[p.key])}"></label>`;
+      }
     } else {
       html += `<label class="ins-row"><span>${esc(p.label)}${help}</span>
         <input type="number" data-pkey="${p.key}" value="${esc(n.data[p.key])}"></label>`;
@@ -533,6 +539,10 @@ App.hideInspector = function () {
 const STMT_TYPES = ['literal', 'tensor', 'embedding', 'linear', 'matmul', 'binop', 'transpose', 'softmax', 'print', 'print_shape', 'getitem', 'call','ones_like','triu','dtype','masked_fill'];
 const MODULE_TYPES = new Set(['embedding', 'linear']);
 
+/* 统一可编译谓词：所有「是否生成语句」的判断都走这里，
+ * 自定义节点（custom.*@v）由 nodespec-app.js 扩展进同一入口，避免名单漏新类型。 */
+App.isStmtType = t => STMT_TYPES.includes(t);
+
 /* 运算 op 节点允许的二元运算符白名单（与节点内运算符下拉框共用 ED.BIN_OPS） */
 const BIN_OPS = ED.BIN_OPS;
 
@@ -599,7 +609,7 @@ function buildScope(df, opts) {
   opts.resolveReferences?.(recs, errors);
 
   // ---- 第 3 遍：拓扑排序（含模块节点，保证 self 表达式先于使用方） ----
-  const nodeIds = Object.values(recs).filter(r => STMT_TYPES.includes(r.type) || r.isModule).map(r => r.id);
+  const nodeIds = Object.values(recs).filter(r => App.isStmtType(r.type) || r.isModule).map(r => r.id);
   const indeg = {}, downs = {};
   nodeIds.forEach(id => { indeg[id] = 0; downs[id] = []; });
   for (const rec of Object.values(recs)) {

@@ -6,6 +6,7 @@ import re
 import shutil
 import tempfile
 import uuid
+from nodespecs import validate_graph_specs
 from runtime_trace import validate_plan
 
 
@@ -42,6 +43,9 @@ def validate_graph(graph):
         for node in scope.values():
             if not isinstance(node, dict) or not isinstance(node.get('data'), dict) or not isinstance(node['data'].get('type'), str):
                 raise ValueError('Invalid graph node')
+    # Custom node specs: independent backend schema check + reference check.
+    # Graphs from before the feature have no nodeSpecs key and stay valid.
+    validate_graph_specs(graph)
 
 
 class Store:

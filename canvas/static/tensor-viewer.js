@@ -90,6 +90,10 @@ App.renderTensorValue=function(value,box,choice,refresh) {
     App.tensorText('p',`${value.type} · ${value.count} 项${value.truncated?' · 仅前 8 项':''}`,box);
     value.items.forEach((item,i)=>{App.tensorText('p','['+i+']',box,'dim');App.renderTensorValue(item,box,choice.items[i]||={slices:[],items:{}},refresh);});return;
   }
+  if(value.kind==='mapping') {
+    App.tensorText('p',`${value.type} · ${value.count} 项${value.truncated?' · 仅前 8 项':''}`,box);
+    value.entries.forEach((entry,i)=>{App.tensorText('p','['+entry[0]+']',box,'dim');App.renderTensorValue(entry[1],box,(choice.items||={})[i]||={slices:[],items:{}},refresh);});return;
+  }
   if(value.kind!=='tensor') {App.tensorText('pre',value.type+'\n'+value.repr,box,'tensor-repr');return;}
   App.tensorText('p',`shape [${value.shape.join(', ')}] · ${value.dtype} · ${value.device}${value.requires_grad?' · grad':''}`,box,'tensor-meta');
   App.tensorText('p',`${value.captured||0} / ${value.numel} 个值${value.truncated?' · 已截断（仅起始区域）':''}`,box,value.truncated?'warn':'dim');
